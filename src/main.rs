@@ -1,14 +1,31 @@
+use oligo_algorithm_a::MinHeap;
 use oligo_algorithm_a::WeightRandom;
+use rand::Rng;
 
 fn main() {
     // 新建一个Vec
-    let v:Vec<(char, i32)> = vec![('a', 10), ('b', 20), ('c', 50), ('d', 100), ('e', 200)];
+    let v: Vec<(char, i32)> = vec![('a', 10), ('b', 20), ('c', 50), ('d', 100), ('e', 200)];
     // 调用算法
     // let res = a_res(&v, 2);
-    let res = WeightRandom::new(&v, 2);
-    println!("{:?}", res);
-}
+    let _res = WeightRandom::new(&v, 2);
+    // println!("{:?}", res);
+    let mut rag = rand::thread_rng(); //随机数发生器
+    let mut heap = MinHeap::new();
 
+    for _j in 0..20 {
+        let tmp: f64 = rag.gen_range(0.0..1.0);
+        let res: char = 'a' as char;
+
+        heap.push_tail(tmp);
+    }
+
+    for _j in 0..20 {
+        match heap.pop_head() {
+            Some(e) => println!("element.age = {:?}", e),
+            _ => println!("none"),
+        }
+    }
+}
 
 // a_res 算法
 // fn a_res(v: &Vec<(char, i32)>, m: usize) -> Vec<(char, i32)> {
