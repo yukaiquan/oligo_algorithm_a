@@ -1,62 +1,75 @@
-use oligo_algorithm_a::MinHeap;
 use oligo_algorithm_a::WeightRandom;
-use rand::Rng;
+use std::collections::HashMap;
+use std::time::SystemTime;
 
 fn main() {
     // 新建一个Vec
-    let v: Vec<(char, i32)> = vec![('a', 10), ('b', 20), ('c', 50), ('d', 100), ('e', 200)];
-    // 调用算法
-    // let res = a_res(&v, 2);
-    let _res = WeightRandom::new(&v, 2);
-    // println!("{:?}", res);
-    let mut rag = rand::thread_rng(); //随机数发生器
-    let mut heap = MinHeap::new();
-
-    for _j in 0..20 {
-        let tmp: f64 = rag.gen_range(0.0..1.0);
-        let res: char = 'a' as char;
-
-        heap.push_tail(tmp);
-    }
-
-    for _j in 0..20 {
-        match heap.pop_head() {
-            Some(e) => println!("element.age = {:?}", e),
-            _ => println!("none"),
-        }
-    }
+    let v: Vec<(char, isize)> = vec![('a', 10), ('b', 200), ('c', 50), ('d', 100), ('e', 20)];
+    // 默认算法
+    println!("默认算法");
+    println!("a_res 选择一个");
+    let sy_time = SystemTime::now();
+    test_10w(&v, true, 1);
+    println!("{:?}", SystemTime::now().duration_since(sy_time).unwrap());
+    println!("a_res 选择两个");
+    test_10w(&v, true, 2);
+    println!("a_res 选择三个");
+    test_10w(&v, true, 3);
+    println!("a_res 选择四个");
+    test_10w(&v, true, 4);
+    println!("a_res 选择五个");
+    test_10w(&v, true, 5);
+    // a_expj算法
+    println!("a_expj算法");
+    println!("a_expj 选择一个");
+    let sexpj_time = SystemTime::now();
+    test_10w(&v, false, 1);
+    println!(
+        "{:?}",
+        SystemTime::now().duration_since(sexpj_time).unwrap()
+    );
+    println!("a_expj 选择两个");
+    test_10w(&v, false, 2);
+    println!("a_expj 选择三个");
+    test_10w(&v, false, 3);
+    println!("a_expj 选择四个");
+    test_10w(&v, false, 4);
+    println!("a_expj 选择五个");
+    test_10w(&v, false, 5);
 }
 
-// a_res 算法
-// fn a_res(v: &Vec<(char, i32)>, m: usize) -> Vec<(char, i32)> {
-//     //v: input Vec [(item, weight), ...]
-//     //m: number of selected items
-//     //return: Vec [(item, weight), ...]
-//     let mut res = Vec::new();
-//     for sample in v {
-//         let wi = f64::from(sample.1);
-//         // rand 0-1
-//         let ui: f64 = rand::thread_rng().gen_range(0.0..1.0);
-//         let ki: f64 = ui.powf(1.0 / wi);
-
-//         if res.len() < m {
-//             res.push((ki, sample));
-//         } else if ki > res[0].0 {
-//             res.push((ki, sample));
-
-//             if res.len() > m {
-//                 res.sort_by(|a, b| b.0.partial_cmp(&a.0).unwrap());
-//                 res.pop();
-//             }
-//         }
-//         println!("{:?}", res);
-//     }
-//     // 取出第二位置的Vec
-//     let mut res2 = Vec::new();
-//     for i in res {
-//         res2.push(*i.1);
-//     }
-//     res2
-// }
-
-// A-ExpJ 算法
+fn test_10w(v: &Vec<(char, isize)>, a_res: bool, m: usize) {
+    if a_res {
+        let mut state = HashMap::new();
+        let mut result = HashMap::new();
+        for _i in 0..100000 {
+            let res = WeightRandom::new(&v, m);
+            for i in res {
+                let count = state.entry(i.item).or_insert(0);
+                *count += 1;
+            }
+        }
+        let total = state.get(&'a').unwrap();
+        for i in &state {
+            let percent = *i.1 as f64 / *total as f64;
+            result.insert(i.0, percent);
+        }
+        println!("{:?}", result);
+    } else {
+        let mut state = HashMap::new();
+        let mut result = HashMap::new();
+        for _i in 0..100000 {
+            let res = WeightRandom::a_expj(&v, m);
+            for i in res {
+                let count = state.entry(i.item).or_insert(0);
+                *count += 1;
+            }
+        }
+        let total = state.get(&'a').unwrap();
+        for i in &state {
+            let percent = *i.1 as f64 / *total as f64;
+            result.insert(i.0, percent);
+        }
+        println!("{:?}", result);
+    }
+}
